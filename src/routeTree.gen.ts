@@ -15,6 +15,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as RemindersRouteImport } from './routes/reminders'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as SymptomsRouteImport } from './routes/symptoms'
+import { Route as ToolsRouteImport } from './routes/tools'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const SymptomsRoute = SymptomsRouteImport.update({
   path: '/symptoms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsRoute = ToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/reminders': typeof RemindersRoute
   '/reports': typeof ReportsRoute
   '/symptoms': typeof SymptomsRoute
+  '/tools': typeof ToolsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/reminders': typeof RemindersRoute
   '/reports': typeof ReportsRoute
   '/symptoms': typeof SymptomsRoute
+  '/tools': typeof ToolsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,13 +79,27 @@ export interface FileRoutesById {
   '/reminders': typeof RemindersRoute
   '/reports': typeof ReportsRoute
   '/symptoms': typeof SymptomsRoute
+  '/tools': typeof ToolsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/chat' | '/dashboard' | '/reminders' | '/reports' | '/symptoms'
+    | '/'
+    | '/chat'
+    | '/dashboard'
+    | '/reminders'
+    | '/reports'
+    | '/symptoms'
+    | '/tools'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/chat' | '/dashboard' | '/reminders' | '/reports' | '/symptoms'
+  to:
+    | '/'
+    | '/chat'
+    | '/dashboard'
+    | '/reminders'
+    | '/reports'
+    | '/symptoms'
+    | '/tools'
   id:
     | '__root__'
     | '/'
@@ -86,6 +108,7 @@ export interface FileRouteTypes {
     | '/reminders'
     | '/reports'
     | '/symptoms'
+    | '/tools'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,6 +118,7 @@ export interface RootRouteChildren {
   RemindersRoute: typeof RemindersRoute
   ReportsRoute: typeof ReportsRoute
   SymptomsRoute: typeof SymptomsRoute
+  ToolsRoute: typeof ToolsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -141,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SymptomsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools': {
+      id: '/tools'
+      path: '/tools'
+      fullPath: '/tools'
+      preLoaderRoute: typeof ToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -151,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   RemindersRoute: RemindersRoute,
   ReportsRoute: ReportsRoute,
   SymptomsRoute: SymptomsRoute,
+  ToolsRoute: ToolsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
