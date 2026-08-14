@@ -96,7 +96,7 @@ function ChatPage() {
     const rec = new Ctor();
     rec.lang = "en-IN";
     rec.interimResults = false;
-    rec.onresult = (e) => setInput(e.results[0][0].transcript);
+    rec.onresult = (e) => setInput(e.results?.[0]?.[0]?.transcript ?? "");
     rec.onerror = () => toast.error("Could not hear you. Try again.");
     rec.onend = () => setListening(false);
     setListening(true);
