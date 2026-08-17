@@ -243,3 +243,23 @@
 @utility animate-float {
   animation: float-slow 6s ease-in-out infinite;
 }
+
+@utility input {
+  height: 2.75rem;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--input);
+  background-color: var(--background);
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.input:focus {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+textarea.input {
+  height: auto;
+  padding: 0.65rem 0.75rem;
+}
