@@ -88,7 +88,7 @@ const TESTIMONIALS = [
   },
 ];
 
-export default function Landing() {
+function Landing() {
   return (
     <AppShell>
       <section className="relative overflow-hidden bg-hero">
