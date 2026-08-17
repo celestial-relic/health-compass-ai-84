@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EmergencyRouteImport } from './routes/emergency'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as RemindersRouteImport } from './routes/reminders'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as SymptomsRouteImport } from './routes/symptoms'
@@ -36,6 +37,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const EmergencyRoute = EmergencyRouteImport.update({
   id: '/emergency',
   path: '/emergency',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RemindersRoute = RemindersRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/emergency': typeof EmergencyRoute
+  '/history': typeof HistoryRoute
   '/reminders': typeof RemindersRoute
   '/reports': typeof ReportsRoute
   '/symptoms': typeof SymptomsRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/emergency': typeof EmergencyRoute
+  '/history': typeof HistoryRoute
   '/reminders': typeof RemindersRoute
   '/reports': typeof ReportsRoute
   '/symptoms': typeof SymptomsRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/emergency': typeof EmergencyRoute
+  '/history': typeof HistoryRoute
   '/reminders': typeof RemindersRoute
   '/reports': typeof ReportsRoute
   '/symptoms': typeof SymptomsRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/dashboard'
     | '/emergency'
+    | '/history'
     | '/reminders'
     | '/reports'
     | '/symptoms'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/dashboard'
     | '/emergency'
+    | '/history'
     | '/reminders'
     | '/reports'
     | '/symptoms'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/dashboard'
     | '/emergency'
+    | '/history'
     | '/reminders'
     | '/reports'
     | '/symptoms'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   DashboardRoute: typeof DashboardRoute
   EmergencyRoute: typeof EmergencyRoute
+  HistoryRoute: typeof HistoryRoute
   RemindersRoute: typeof RemindersRoute
   ReportsRoute: typeof ReportsRoute
   SymptomsRoute: typeof SymptomsRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/emergency'
       fullPath: '/emergency'
       preLoaderRoute: typeof EmergencyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reminders': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatRoute: ChatRoute,
   DashboardRoute: DashboardRoute,
   EmergencyRoute: EmergencyRoute,
+  HistoryRoute: HistoryRoute,
   RemindersRoute: RemindersRoute,
   ReportsRoute: ReportsRoute,
   SymptomsRoute: SymptomsRoute,
