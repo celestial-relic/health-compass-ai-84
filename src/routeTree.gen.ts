@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EmergencyRouteImport } from './routes/emergency'
@@ -23,6 +24,11 @@ import { Route as ToolsRouteImport } from './routes/tools'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -73,6 +79,7 @@ const ToolsRoute = ToolsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/emergency': typeof EmergencyRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/emergency': typeof EmergencyRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/emergency': typeof EmergencyRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/chat'
     | '/dashboard'
     | '/emergency'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/chat'
     | '/dashboard'
     | '/emergency'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/chat'
     | '/dashboard'
     | '/emergency'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   ChatRoute: typeof ChatRoute
   DashboardRoute: typeof DashboardRoute
   EmergencyRoute: typeof EmergencyRoute
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -237,6 +257,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   ChatRoute: ChatRoute,
   DashboardRoute: DashboardRoute,
   EmergencyRoute: EmergencyRoute,
