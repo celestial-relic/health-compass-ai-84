@@ -1,9 +1,11 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   Activity,
   HeartPulse,
+  Loader2,
+  LogOut,
   Menu,
   Moon,
   Search,
@@ -21,24 +23,41 @@ import {
 import { useTheme } from "@/components/theme";
 import { MagnifierCursor } from "@/components/MagnifierCursor";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
+import { signOut, useAuth } from "@/lib/auth";
 
 export const NAV = [
-  { to: "/dashboard", label: "Dashboard", icon: Activity },
-  { to: "/chat", label: "AI Chat", icon: MessageSquareHeart },
-  { to: "/symptoms", label: "Symptoms", icon: Stethoscope },
-  { to: "/reminders", label: "Medicines", icon: Pill },
-  { to: "/reports", label: "Reports", icon: FileText },
-  { to: "/tools", label: "Health Tools", icon: Calculator },
-  { to: "/emergency", label: "Emergency", icon: Siren },
-  { to: "/history", label: "History", icon: History },
-  { to: "/profile", label: "Profile", icon: User },
+  { to: "/dashboard", label: "Dashboard", hi: "डैशबोर्ड", icon: Activity },
+  { to: "/chat", label: "AI Chat", hi: "एआई चैट", icon: MessageSquareHeart },
+  { to: "/symptoms", label: "Symptoms", hi: "लक्षण", icon: Stethoscope },
+  { to: "/reminders", label: "Medicines", hi: "दवाइयाँ", icon: Pill },
+  { to: "/reports", label: "Reports", hi: "रिपोर्ट", icon: FileText },
+  { to: "/tools", label: "Health Tools", hi: "स्वास्थ्य टूल", icon: Calculator },
+  { to: "/emergency", label: "Emergency", hi: "आपातकाल", icon: Siren },
+  { to: "/history", label: "History", hi: "इतिहास", icon: History },
+  { to: "/profile", label: "Profile", hi: "प्रोफ़ाइल", icon: User },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { theme, toggle } = useTheme();
+  const { t, lang, setLang } = useI18n();
+  const { session, loading } = useAuth();
+  const navigate = useNavigate();
   const [magnifier, setMagnifier] = useState(false);
   const [open, setOpen] = useState(false);
   const path = useRouterState({ select: (s) => s.location.pathname });
+
+  useEffect(() => {
+    if (!loading && !session) navigate({ to: "/auth", replace: true });
+  }, [loading, session, navigate]);
+
+  if (loading || !session) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
