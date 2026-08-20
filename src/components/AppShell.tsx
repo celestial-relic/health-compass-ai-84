@@ -84,12 +84,31 @@ export function AppShell({ children }: { children: ReactNode }) {
                   path === item.to && "bg-accent text-accent-foreground",
                 )}
               >
-                {item.label}
+                {lang === "hi" ? item.hi : item.label}
               </Link>
             ))}
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={() => setLang(lang === "hi" ? "en" : "hi")}
+              aria-label="Switch language"
+              title="English / हिंदी"
+              className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-accent"
+            >
+              {lang === "hi" ? "EN" : "हिं"}
+            </button>
+            <button
+              onClick={async () => {
+                await signOut();
+                navigate({ to: "/auth", replace: true });
+              }}
+              aria-label={t("Sign out", "साइन आउट")}
+              title={t("Sign out", "साइन आउट")}
+              className="grid h-9 w-9 place-items-center rounded-full border border-border transition-colors hover:bg-accent"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
             <button
               onClick={() => setMagnifier((m) => !m)}
               aria-pressed={magnifier}
@@ -136,7 +155,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     className="flex items-center gap-2 rounded-xl border border-border/60 px-3 py-2 text-sm"
                   >
                     <item.icon className="h-4 w-4 text-primary" />
-                    {item.label}
+                    {lang === "hi" ? item.hi : item.label}
                   </Link>
                 ))}
               </div>
@@ -155,8 +174,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       </motion.main>
 
       <footer className="border-t border-border/60 py-8 text-center text-xs text-muted-foreground">
-        MedAssist AI provides educational health information only — never a medical diagnosis.
-        Always consult a qualified doctor. In an emergency call 108 / 112.
+        {t(
+          "MedAssist AI provides educational health information only — never a medical diagnosis. Always consult a qualified doctor. In an emergency call 108 / 112.",
+          "MedAssist AI केवल शैक्षिक स्वास्थ्य जानकारी देता है — कभी चिकित्सीय निदान नहीं। हमेशा योग्य डॉक्टर से सलाह लें। आपात स्थिति में 108 / 112 पर कॉल करें।",
+        )}
       </footer>
     </div>
   );
