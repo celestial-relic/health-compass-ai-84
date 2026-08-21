@@ -10,6 +10,7 @@ import { AppShell, PageHeader } from "@/components/AppShell";
 import { chatWithAI } from "@/lib/ai.functions";
 import { STORE_KEYS, pushActivity, uid, useLocalStore, type ChatMessage } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -31,15 +32,16 @@ export const Route = createFileRoute("/chat")({
 });
 
 const SUGGESTIONS = [
-  "I've had a fever and headache for 2 days",
-  "मुझे खांसी और गले में दर्द है, क्या करूँ?",
-  "What do high cholesterol numbers mean?",
-  "How much water should I drink daily?",
+  { en: "I've had a fever and headache for 2 days", hi: "मुझे 2 दिनों से बुखार और सिरदर्द है" },
+  { en: "मुझे खांसी और गले में दर्द है, क्या करूँ?", hi: "मुझे खांसी और गले में दर्द है, क्या करूँ?" },
+  { en: "What do high cholesterol numbers mean?", hi: "उच्च कोलेस्ट्रॉल का क्या मतलब है?" },
+  { en: "How much water should I drink daily?", hi: "मुझे रोज़ कितना पानी पीना चाहिए?" },
 ];
 
 type Engine = "gemini" | "openai";
 
 function ChatPage() {
+  const { t, lang } = useI18n();
   const send = useServerFn(chatWithAI);
   const { value: messages, setValue: setMessages } = useLocalStore<ChatMessage[]>(
     STORE_KEYS.chats,
@@ -67,6 +69,7 @@ function ChatPage() {
       const res = await send({
         data: {
           engine,
+          lang,
           messages: next.slice(-16).map((m) => ({ role: m.role, content: m.content })),
         },
       });
@@ -74,9 +77,9 @@ function ChatPage() {
         ...prev,
         { id: uid(), role: "assistant", content: res.reply, createdAt: Date.now() },
       ]);
-      pushActivity({ type: "chat", title: "AI chat", detail: clean.slice(0, 90) });
+      pushActivity({ type: "chat", title: t("AI chat", "एआई चैट"), detail: clean.slice(0, 90) });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not reach the AI service.");
+      toast.error(err instanceof Error ? err.message : t("Could not reach the AI service.", "एआई सेवा तक पहुँचा नहीं जा सका।"));
       setMessages(next);
     } finally {
       setLoading(false);
@@ -90,14 +93,14 @@ function ChatPage() {
     };
     const Ctor = w.SpeechRecognition ?? w.webkitSpeechRecognition;
     if (!Ctor) {
-      toast.error("Voice input isn't supported in this browser.");
+      toast.error(t("Voice input isn't supported in this browser.", "इस ब्राउज़र में वॉइस इनपुट समर्थित नहीं है।"));
       return;
     }
     const rec = new Ctor();
-    rec.lang = "en-IN";
+    rec.lang = lang === "hi" ? "hi-IN" : "en-IN";
     rec.interimResults = false;
     rec.onresult = (e) => setInput(e.results?.[0]?.[0]?.transcript ?? "");
-    rec.onerror = () => toast.error("Could not hear you. Try again.");
+    rec.onerror = () => toast.error(t("Could not hear you. Try again.", "आपकी आवाज़ नहीं सुनी जा सकी। पुनः प्रयास करें।"));
     rec.onend = () => setListening(false);
     setListening(true);
     rec.start();
@@ -108,12 +111,15 @@ function ChatPage() {
       <div className="mx-auto max-w-4xl px-4 py-10">
         <PageHeader
           icon={MessageSquareHeart}
-          title="AI Medical Chat"
-          subtitle="Ask health questions in English or Hindi. Choose your AI engine — Gemini or ChatGPT via API."
+          title={t("AI Medical Chat", "एआई मेडिकल चैट")}
+          subtitle={t(
+            "Ask health questions in English or Hindi. Choose your AI engine — Gemini or ChatGPT via API.",
+            "अंग्रेज़ी या हिंदी में स्वास्थ्य संबंधी सवाल पूछें। अपना एआई इंजन चुनें — Gemini या ChatGPT (API के ज़रिए)।",
+          )}
         />
 
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold text-muted-foreground">AI engine:</span>
+          <span className="text-xs font-semibold text-muted-foreground">{t("AI engine:", "एआई इंजन:")}</span>
           {(["gemini", "openai"] as const).map((e) => (
             <button
               key={e}
@@ -123,7 +129,7 @@ function ChatPage() {
                 engine === e ? "bg-brand text-primary-foreground" : "hover:bg-accent",
               )}
             >
-              {e === "gemini" ? "Gemini" : "ChatGPT (API)"}
+              {e === "gemini" ? "Gemini" : t("ChatGPT (API)", "ChatGPT (API)")}
             </button>
           ))}
           {messages.length > 0 && (
@@ -131,7 +137,7 @@ function ChatPage() {
               onClick={() => setMessages([])}
               className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-accent"
             >
-              <Trash2 className="h-3.5 w-3.5" /> Clear chat
+              <Trash2 className="h-3.5 w-3.5" /> {t("Clear chat", "चैट साफ़ करें")}
             </button>
           )}
         </div>
@@ -149,7 +155,7 @@ function ChatPage() {
                     <Sparkles className="h-7 w-7" />
                   </motion.span>
                   <p className="mt-4 text-sm text-muted-foreground">
-                    Describe how you feel — I'll explain it simply.
+                    {t("Describe how you feel — I'll explain it simply.", "बताइए आप कैसा महसूस कर रहे हैं — मैं इसे आसान भाषा में समझाऊँगा।")}
                   </p>
                 </div>
               </div>
@@ -221,11 +227,11 @@ function ChatPage() {
             <div className="mb-3 flex flex-wrap gap-2">
               {SUGGESTIONS.map((s) => (
                 <button
-                  key={s}
-                  onClick={() => submit(s)}
+                  key={s.en}
+                  onClick={() => submit(t(s.en, s.hi))}
                   className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
-                  {s}
+                  {t(s.en, s.hi)}
                 </button>
               ))}
             </div>
@@ -239,14 +245,14 @@ function ChatPage() {
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your health question…"
-                aria-label="Your message"
+                placeholder={t("Type your health question…", "अपना स्वास्थ्य संबंधी सवाल लिखें…")}
+                aria-label={t("Your message", "आपका संदेश")}
                 className="h-11 flex-1 rounded-full border border-input bg-background px-4 text-sm outline-none focus:ring-2 focus:ring-ring"
               />
               <button
                 type="button"
                 onClick={startVoice}
-                aria-label="Voice input"
+                aria-label={t("Voice input", "वॉइस इनपुट")}
                 className={cn(
                   "grid h-11 w-11 place-items-center rounded-full border border-border transition-colors hover:bg-accent",
                   listening && "bg-destructive text-destructive-foreground",
@@ -257,7 +263,7 @@ function ChatPage() {
               <button
                 type="submit"
                 disabled={loading}
-                aria-label="Send"
+                aria-label={t("Send", "भेजें")}
                 className="grid h-11 w-11 place-items-center rounded-full bg-brand text-primary-foreground shadow-glow disabled:opacity-50"
               >
                 <Send className="h-4 w-4" />
@@ -267,7 +273,10 @@ function ChatPage() {
         </div>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          ⚠️ MedAssist AI never diagnoses or prescribes. For emergencies call 108 / 112.
+          {t(
+            "⚠️ MedAssist AI never diagnoses or prescribes. For emergencies call 108 / 112.",
+            "⚠️ MedAssist AI कभी निदान या दवा नहीं लिखता। आपातकाल में 108 / 112 पर कॉल करें।",
+          )}
         </p>
       </div>
     </AppShell>
