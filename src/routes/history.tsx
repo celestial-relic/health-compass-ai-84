@@ -5,6 +5,7 @@ import { History, Search, MessageSquareHeart, FileText, Pill, Stethoscope, Calcu
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { STORE_KEYS, useLocalStore, type ActivityItem } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/history")({
   head: () => ({
@@ -26,15 +27,16 @@ export const Route = createFileRoute("/history")({
 });
 
 const FILTERS = [
-  { key: "all", label: "All", icon: History },
-  { key: "chat", label: "AI chats", icon: MessageSquareHeart },
-  { key: "symptom", label: "Symptom checks", icon: Stethoscope },
-  { key: "report", label: "Reports", icon: FileText },
-  { key: "reminder", label: "Medicines", icon: Pill },
-  { key: "tool", label: "Health tools", icon: Calculator },
+  { key: "all", label: "All", labelHi: "सभी", icon: History },
+  { key: "chat", label: "AI chats", labelHi: "एआई चैट", icon: MessageSquareHeart },
+  { key: "symptom", label: "Symptom checks", labelHi: "लक्षण जांच", icon: Stethoscope },
+  { key: "report", label: "Reports", labelHi: "रिपोर्ट", icon: FileText },
+  { key: "reminder", label: "Medicines", labelHi: "दवाइयाँ", icon: Pill },
+  { key: "tool", label: "Health tools", labelHi: "स्वास्थ्य उपकरण", icon: Calculator },
 ] as const;
 
 function HistoryPage() {
+  const { t } = useI18n();
   const { value: activity } = useLocalStore<ActivityItem[]>(STORE_KEYS.activity, []);
   const [filter, setFilter] = useState<string>("all");
   const [query, setQuery] = useState("");
@@ -52,8 +54,8 @@ function HistoryPage() {
       <div className="mx-auto max-w-4xl px-4 py-10">
         <PageHeader
           icon={History}
-          title="Health History"
-          subtitle="Everything you've done in MedAssist AI, newest first."
+          title={t("Health History", "स्वास्थ्य इतिहास")}
+          subtitle={t("Everything you've done in MedAssist AI, newest first.", "MedAssist AI में आपने जो कुछ भी किया है, सबसे नया पहले।")}
         />
 
         <div className="glass-card mb-5 p-5">
@@ -62,8 +64,8 @@ function HistoryPage() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search your history…"
-              aria-label="Search history"
+              placeholder={t("Search your history…", "अपना इतिहास खोजें…")}
+              aria-label={t("Search history", "इतिहास खोजें")}
               className="h-11 w-full rounded-full border border-input bg-background pr-4 pl-9 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -78,7 +80,7 @@ function HistoryPage() {
                 )}
               >
                 <f.icon className="h-3.5 w-3.5" />
-                {f.label}
+                {t(f.label, f.labelHi)}
               </button>
             ))}
           </div>
@@ -86,7 +88,10 @@ function HistoryPage() {
 
         {items.length === 0 ? (
           <div className="glass-card grid place-items-center p-14 text-center text-sm text-muted-foreground">
-            Nothing here yet — start a chat, check symptoms or upload a report.
+            {t(
+              "Nothing here yet — start a chat, check symptoms or upload a report.",
+              "यहाँ अभी कुछ नहीं है — चैट शुरू करें, लक्षण जांचें या रिपोर्ट अपलोड करें।",
+            )}
           </div>
         ) : (
           <ol className="relative space-y-3 border-l border-border pl-6">
