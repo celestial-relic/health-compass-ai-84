@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { analyzeReport } from "@/lib/ai.functions";
 import { STORE_KEYS, pushActivity, uid, useLocalStore, type ReportRecord } from "@/lib/store";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/reports")({
   head: () => ({
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/reports")({
 const ACCEPT = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
 
 function ReportsPage() {
+  const { t } = useI18n();
   const analyze = useServerFn(analyzeReport);
   const { value: reports, setValue } = useLocalStore<ReportRecord[]>(STORE_KEYS.reports, []);
   const [loading, setLoading] = useState(false);
@@ -40,11 +42,11 @@ function ReportsPage() {
 
   async function handleFile(file: File) {
     if (!ACCEPT.includes(file.type)) {
-      toast.error("Please upload a PDF, JPG or PNG file.");
+      toast.error(t("Please upload a PDF, JPG or PNG file.", "कृपया PDF, JPG या PNG फ़ाइल अपलोड करें।"));
       return;
     }
     if (file.size > 8 * 1024 * 1024) {
-      toast.error("File must be under 8 MB.");
+      toast.error(t("File must be under 8 MB.", "फ़ाइल 8 MB से कम होनी चाहिए।"));
       return;
     }
     setLoading(true);
@@ -68,9 +70,9 @@ function ReportsPage() {
       setCurrent(record);
       setValue((prev) => [record, ...prev].slice(0, 50));
       pushActivity({ type: "report", title: `Analyzed ${file.name}`, detail: "Lab report summary generated" });
-      toast.success("Report analyzed");
+      toast.success(t("Report analyzed", "रिपोर्ट विश्लेषित की गई"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not analyze this report.");
+      toast.error(err instanceof Error ? err.message : t("Could not analyze this report.", "इस रिपोर्ट का विश्लेषण नहीं किया जा सका।"));
     } finally {
       setLoading(false);
     }
@@ -93,8 +95,11 @@ function ReportsPage() {
       <div className="mx-auto max-w-5xl px-4 py-10">
         <PageHeader
           icon={FileText}
-          title="Lab Report Analyzer"
-          subtitle="Upload a PDF or photo of your report. Abnormal values are flagged ⚠️ and explained in everyday language."
+          title={t("Lab Report Analyzer", "लैब रिपोर्ट विश्लेषक")}
+          subtitle={t(
+            "Upload a PDF or photo of your report. Abnormal values are flagged ⚠️ and explained in everyday language.",
+            "अपनी रिपोर्ट की PDF या फोटो अपलोड करें। असामान्य मूल्यों को ⚠️ के साथ चिह्नित किया जाता है और आसान भाषा में समझाया जाता है।",
+          )}
         />
 
         <div
@@ -113,8 +118,8 @@ function ReportsPage() {
           >
             <Upload className="h-6 w-6" />
           </motion.span>
-          <p className="mt-4 text-sm font-medium">Drag & drop your report here</p>
-          <p className="text-xs text-muted-foreground">PDF, JPG or PNG • max 8 MB</p>
+          <p className="mt-4 text-sm font-medium">{t("Drag & drop your report here", "अपनी रिपोर्ट यहां खींचें और छोड़ें")}</p>
+          <p className="text-xs text-muted-foreground">{t("PDF, JPG or PNG • max 8 MB", "PDF, JPG या PNG • अधिकतम 8 MB")}</p>
           <input
             ref={inputRef}
             type="file"
@@ -131,7 +136,7 @@ function ReportsPage() {
             className="mt-5 inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-glow disabled:opacity-60"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-            {loading ? "Reading your report…" : "Choose file"}
+            {loading ? t("Reading your report…", "आपकी रिपोर्ट पढ़ी जा रही है…") : t("Choose file", "फ़ाइल चुनें")}
           </button>
         </div>
 
@@ -159,13 +164,13 @@ function ReportsPage() {
                 onClick={() => download(current)}
                 className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-accent"
               >
-                <Download className="h-3.5 w-3.5" /> Download summary
+                <Download className="h-3.5 w-3.5" /> {t("Download summary", "सारांश डाउनलोड करें")}
               </button>
               <button
                 onClick={() => window.print()}
                 className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-accent"
               >
-                <Printer className="h-3.5 w-3.5" /> Save as PDF
+                <Printer className="h-3.5 w-3.5" /> {t("Save as PDF", "PDF के रूप में सहेजें")}
               </button>
             </div>
             <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -176,7 +181,7 @@ function ReportsPage() {
 
         {reports.length > 0 && (
           <section className="glass-card mt-5 p-6">
-            <h2 className="text-sm font-semibold">Previous reports</h2>
+            <h2 className="text-sm font-semibold">{t("Previous reports", "पिछली रिपोर्टें")}</h2>
             <ul className="mt-3 divide-y divide-border/60">
               {reports.map((r) => (
                 <li key={r.id} className="flex items-center justify-between gap-3 py-3 text-sm">
@@ -190,7 +195,7 @@ function ReportsPage() {
                     onClick={() => download(r)}
                     className="rounded-full border border-border px-3 py-1 text-xs font-semibold hover:bg-accent"
                   >
-                    Download
+                    {t("Download", "डाउनलोड")}
                   </button>
                 </li>
               ))}
