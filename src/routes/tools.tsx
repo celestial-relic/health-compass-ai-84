@@ -5,6 +5,7 @@ import { Calculator, Droplets, Flame, Moon } from "lucide-react";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { STORE_KEYS, emptyProfile, pushActivity, useLocalStore, type HealthProfile } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/tools")({
   head: () => ({
@@ -25,7 +26,15 @@ export const Route = createFileRoute("/tools")({
   component: ToolsPage,
 });
 
+const ACTIVITY_LEVELS = [
+  { value: "1.2", label: "Sedentary", labelHi: "निष्क्रिय" },
+  { value: "1.375", label: "Lightly active", labelHi: "थोड़ा सक्रिय" },
+  { value: "1.55", label: "Moderately active", labelHi: "मध्यम सक्रिय" },
+  { value: "1.725", label: "Very active", labelHi: "अत्यधिक सक्रिय" },
+];
+
 function ToolsPage() {
+  const { t } = useI18n();
   const { value: profile } = useLocalStore<HealthProfile>(STORE_KEYS.profile, emptyProfile);
   const [height, setHeight] = useState(profile.height || "170");
   const [weight, setWeight] = useState(profile.weight || "70");
@@ -44,28 +53,40 @@ function ToolsPage() {
 
   const bmiBand =
     bmi === 0
-      ? { label: "—", tip: "Enter your height and weight.", color: "bg-muted" }
+      ? { label: t("—", "—"), tip: t("Enter your height and weight.", "अपनी ऊंचाई और वजन दर्ज करें।"), color: "bg-muted" }
       : bmi < 18.5
         ? {
-            label: "Underweight",
-            tip: "Add calorie-dense, protein-rich foods like nuts, dals, eggs and milk. Ask a doctor if weight keeps dropping.",
+            label: t("Underweight", "कम वजन"),
+            tip: t(
+              "Add calorie-dense, protein-rich foods like nuts, dals, eggs and milk. Ask a doctor if weight keeps dropping.",
+              "मेवे, दाल, अंडे और दूध जैसे कैलोरी-युक्त, प्रोटीन-युक्त भोजन शामिल करें। यदि वजन लगातार घट रहा हो तो डॉक्टर से पूछें।",
+            ),
             color: "bg-chart-3",
           }
         : bmi < 25
           ? {
-              label: "Healthy",
-              tip: "Great range. Keep 30 minutes of daily movement and a balanced plate half-filled with vegetables.",
+              label: t("Healthy", "स्वस्थ"),
+              tip: t(
+                "Great range. Keep 30 minutes of daily movement and a balanced plate half-filled with vegetables.",
+                "बेहतरीन सीमा। रोजाना 30 मिनट गतिविधि करें और थाली का आधा हिस्सा सब्जियों से भरा रखें।",
+              ),
               color: "bg-success",
             }
           : bmi < 30
             ? {
-                label: "Overweight",
-                tip: "Small steady changes work best: cut sugary drinks, walk 8,000+ steps and prioritise sleep.",
+                label: t("Overweight", "अधिक वजन"),
+                tip: t(
+                  "Small steady changes work best: cut sugary drinks, walk 8,000+ steps and prioritise sleep.",
+                  "छोटे स्थिर बदलाव सबसे बेहतर काम करते हैं: मीठे पेय कम करें, 8,000+ कदम चलें और नींद को प्राथमिकता दें।",
+                ),
                 color: "bg-warning",
               }
             : {
-                label: "Obese",
-                tip: "Consider a check-up for blood sugar, blood pressure and lipids, and a supervised nutrition plan.",
+                label: t("Obese", "मोटापा"),
+                tip: t(
+                  "Consider a check-up for blood sugar, blood pressure and lipids, and a supervised nutrition plan.",
+                  "रक्त शर्करा, रक्तचाप और लिपिड की जांच और एक निगरानी वाली पोषण योजना पर विचार करें।",
+                ),
                 color: "bg-destructive",
               };
 
@@ -82,20 +103,20 @@ function ToolsPage() {
       <div className="mx-auto max-w-6xl px-4 py-10">
         <PageHeader
           icon={Calculator}
-          title="Health Tools"
-          subtitle="Quick calculators with tips you can actually act on today."
+          title={t("Health Tools", "स्वास्थ्य उपकरण")}
+          subtitle={t("Quick calculators with tips you can actually act on today.", "त्वरित कैलकुलेटर जिनकी सलाह पर आप आज ही अमल कर सकते हैं।")}
         />
 
         <div className="grid gap-5 lg:grid-cols-2">
           <motion.section initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6">
-            <h2 className="text-sm font-semibold">BMI Calculator</h2>
+            <h2 className="text-sm font-semibold">{t("BMI Calculator", "बीएमआई कैलकुलेटर")}</h2>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <label className="text-sm">
-                <span className="mb-1 block font-medium">Height (cm)</span>
+                <span className="mb-1 block font-medium">{t("Height (cm)", "ऊंचाई (सेमी)")}</span>
                 <input value={height} onChange={(e) => setHeight(e.target.value)} className="input" inputMode="numeric" />
               </label>
               <label className="text-sm">
-                <span className="mb-1 block font-medium">Weight (kg)</span>
+                <span className="mb-1 block font-medium">{t("Weight (kg)", "वजन (किलो)")}</span>
                 <input value={weight} onChange={(e) => setWeight(e.target.value)} className="input" inputMode="numeric" />
               </label>
             </div>
@@ -117,34 +138,37 @@ function ToolsPage() {
             className="glass-card p-6"
           >
             <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <Flame className="h-4 w-4 text-primary" /> Daily Calorie Needs
+              <Flame className="h-4 w-4 text-primary" /> {t("Daily Calorie Needs", "दैनिक कैलोरी आवश्यकता")}
             </h2>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <label className="text-sm">
-                <span className="mb-1 block font-medium">Age</span>
+                <span className="mb-1 block font-medium">{t("Age", "आयु")}</span>
                 <input value={age} onChange={(e) => setAge(e.target.value)} className="input" inputMode="numeric" />
               </label>
               <label className="text-sm">
-                <span className="mb-1 block font-medium">Gender</span>
+                <span className="mb-1 block font-medium">{t("Gender", "लिंग")}</span>
                 <select value={gender} onChange={(e) => setGender(e.target.value)} className="input">
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
+                  <option value="male">{t("Male", "पुरुष")}</option>
+                  <option value="female">{t("Female", "महिला")}</option>
                 </select>
               </label>
             </div>
             <label className="mt-3 block text-sm">
-              <span className="mb-1 block font-medium">Activity level</span>
+              <span className="mb-1 block font-medium">{t("Activity level", "गतिविधि स्तर")}</span>
               <select value={activity} onChange={(e) => setActivity(e.target.value)} className="input">
-                <option value="1.2">Sedentary</option>
-                <option value="1.375">Lightly active</option>
-                <option value="1.55">Moderately active</option>
-                <option value="1.725">Very active</option>
+                {ACTIVITY_LEVELS.map((a) => (
+                  <option key={a.value} value={a.value}>
+                    {t(a.label, a.labelHi)}
+                  </option>
+                ))}
               </select>
             </label>
             <p className="mt-5 text-4xl font-bold">{Number.isFinite(calories) ? calories : "—"} kcal</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Maintenance estimate. For gradual weight loss aim ~500 kcal lower, and keep protein at
-              roughly 1.2 g per kg body weight.
+              {t(
+                "Maintenance estimate. For gradual weight loss aim ~500 kcal lower, and keep protein at roughly 1.2 g per kg body weight.",
+                "यह एक अनुमान है। धीरे-धीरे वजन घटाने के लिए ~500 kcal कम लक्ष्य रखें, और प्रोटीन लगभग 1.2 ग्राम प्रति किलो शरीर के वजन के अनुसार रखें।",
+              )}
             </p>
           </motion.section>
 
@@ -155,10 +179,10 @@ function ToolsPage() {
             className="glass-card p-6"
           >
             <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <Droplets className="h-4 w-4 text-primary" /> Water Intake
+              <Droplets className="h-4 w-4 text-primary" /> {t("Water Intake", "पानी का सेवन")}
             </h2>
             <p className="mt-4 text-sm text-muted-foreground">
-              Your goal: <strong className="text-foreground">{waterGoal} glasses</strong> (250 ml each)
+              {t("Your goal:", "आपका लक्ष्य:")} <strong className="text-foreground">{waterGoal} {t("glasses", "गिलास")}</strong> {t("(250 ml each)", "(प्रत्येक 250 मिली)")}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {Array.from({ length: waterGoal }).map((_, i) => (
@@ -166,7 +190,7 @@ function ToolsPage() {
                   key={i}
                   whileTap={{ scale: 0.85 }}
                   onClick={() => setWater(i + 1 === water ? i : i + 1)}
-                  aria-label={`Set water to ${i + 1} glasses`}
+                  aria-label={t(`Set water to ${i + 1} glasses`, `पानी को ${i + 1} गिलास पर सेट करें`)}
                   className={cn(
                     "h-9 w-7 rounded-md border border-border transition-colors",
                     i < water ? "bg-brand" : "bg-muted",
@@ -179,8 +203,11 @@ function ToolsPage() {
             </p>
             <p className="text-sm text-muted-foreground">
               {water >= waterGoal
-                ? "Goal reached — nice work! 💧"
-                : "Sip regularly instead of large amounts at once; add more in hot weather or after exercise."}
+                ? t("Goal reached — nice work! 💧", "लक्ष्य पूरा हुआ — शानदार काम! 💧")
+                : t(
+                    "Sip regularly instead of large amounts at once; add more in hot weather or after exercise.",
+                    "एक बार में अधिक मात्रा के बजाय नियमित रूप से पानी पिएं; गर्म मौसम में या व्यायाम के बाद अधिक पिएं।",
+                  )}
             </p>
           </motion.section>
 
@@ -191,7 +218,7 @@ function ToolsPage() {
             className="glass-card p-6"
           >
             <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <Moon className="h-4 w-4 text-primary" /> Sleep Tracker
+              <Moon className="h-4 w-4 text-primary" /> {t("Sleep Tracker", "नींद ट्रैकर")}
             </h2>
             <div className="mt-4 flex gap-2">
               <input
@@ -199,7 +226,7 @@ function ToolsPage() {
                 onChange={(e) => setSleepInput(e.target.value)}
                 className="input"
                 inputMode="decimal"
-                aria-label="Hours slept last night"
+                aria-label={t("Hours slept last night", "पिछली रात सोने के घंटे")}
               />
               <button
                 onClick={() => {
@@ -210,12 +237,12 @@ function ToolsPage() {
                 }}
                 className="shrink-0 rounded-full bg-brand px-5 text-sm font-semibold text-primary-foreground shadow-glow"
               >
-                Log night
+                {t("Log night", "रात दर्ज करें")}
               </button>
             </div>
             <div className="mt-5 flex h-28 items-end gap-1.5">
               {sleep.length === 0 && (
-                <p className="text-sm text-muted-foreground">Log a night to see your trend.</p>
+                <p className="text-sm text-muted-foreground">{t("Log a night to see your trend.", "अपने रुझान को देखने के लिए एक रात दर्ज करें।")}</p>
               )}
               {sleep.map((h, i) => (
                 <motion.div
@@ -229,8 +256,11 @@ function ToolsPage() {
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
               {avgSleep
-                ? `Average ${avgSleep.toFixed(1)} h. ${avgSleep >= 7 ? "Right in the healthy adult range." : "Adults generally need 7–9 hours; try a fixed bedtime and no screens 45 min before."}`
-                : "Adults generally need 7–9 hours of sleep."}
+                ? t(
+                    `Average ${avgSleep.toFixed(1)} h. ${avgSleep >= 7 ? "Right in the healthy adult range." : "Adults generally need 7–9 hours; try a fixed bedtime and no screens 45 min before."}`,
+                    `औसत ${avgSleep.toFixed(1)} घंटे। ${avgSleep >= 7 ? "स्वस्थ वयस्क सीमा में सही है।" : "वयस्कों को आमतौर पर 7–9 घंटे चाहिए; एक निश्चित सोने का समय रखें और सोने से 45 मिनट पहले स्क्रीन से दूर रहें।"}`,
+                  )
+                : t("Adults generally need 7–9 hours of sleep.", "वयस्कों को आमतौर पर 7–9 घंटे की नींद चाहिए।")}
             </p>
           </motion.section>
         </div>

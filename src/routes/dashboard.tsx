@@ -23,6 +23,7 @@ import {
   type Reminder,
   type ReportRecord,
 } from "@/lib/store";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -44,17 +45,18 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 const CARDS = [
-  { to: "/chat", label: "AI Medical Chat", icon: MessageSquareHeart, hint: "Ask in EN / हिंदी" },
-  { to: "/symptoms", label: "Symptom Checker", icon: Stethoscope, hint: "Risk triage" },
-  { to: "/reports", label: "Lab Report Analyzer", icon: FileText, hint: "PDF / photo" },
-  { to: "/reminders", label: "Medicine Reminder", icon: Pill, hint: "Never miss a dose" },
-  { to: "/history", label: "Health History", icon: History, hint: "Full timeline" },
-  { to: "/tools", label: "Health Tools", icon: Calculator, hint: "BMI • water • sleep" },
-  { to: "/emergency", label: "Emergency & Hospitals", icon: Siren, hint: "SOS + maps" },
-  { to: "/profile", label: "Profile & Settings", icon: User, hint: "Your medical data" },
+  { to: "/chat", label: "AI Medical Chat", labelHi: "एआई मेडिकल चैट", icon: MessageSquareHeart, hint: "Ask in EN / हिंदी", hintHi: "अंग्रेज़ी / हिंदी में पूछें" },
+  { to: "/symptoms", label: "Symptom Checker", labelHi: "लक्षण जाँचकर्ता", icon: Stethoscope, hint: "Risk triage", hintHi: "जोखिम आकलन" },
+  { to: "/reports", label: "Lab Report Analyzer", labelHi: "लैब रिपोर्ट विश्लेषक", icon: FileText, hint: "PDF / photo", hintHi: "पीडीएफ / फोटो" },
+  { to: "/reminders", label: "Medicine Reminder", labelHi: "दवा रिमाइंडर", icon: Pill, hint: "Never miss a dose", hintHi: "कोई खुराक न छूटे" },
+  { to: "/history", label: "Health History", labelHi: "स्वास्थ्य इतिहास", icon: History, hint: "Full timeline", hintHi: "पूरी टाइमलाइन" },
+  { to: "/tools", label: "Health Tools", labelHi: "हेल्थ टूल्स", icon: Calculator, hint: "BMI • water • sleep", hintHi: "बीएमआई • पानी • नींद" },
+  { to: "/emergency", label: "Emergency & Hospitals", labelHi: "आपातकाल और अस्पताल", icon: Siren, hint: "SOS + maps", hintHi: "एसओएस + नक्शा" },
+  { to: "/profile", label: "Profile & Settings", labelHi: "प्रोफ़ाइल और सेटिंग्स", icon: User, hint: "Your medical data", hintHi: "आपका मेडिकल डेटा" },
 ] as const;
 
 function Dashboard() {
+  const { t } = useI18n();
   const { value: reminders } = useLocalStore<Reminder[]>(STORE_KEYS.reminders, []);
   const { value: reports } = useLocalStore<ReportRecord[]>(STORE_KEYS.reports, []);
   const { value: activity } = useLocalStore<ActivityItem[]>(STORE_KEYS.activity, []);
@@ -74,8 +76,15 @@ function Dashboard() {
       <div className="mx-auto max-w-7xl px-4 py-10">
         <PageHeader
           icon={Activity}
-          title={profile.name ? `Hello, ${profile.name}` : "Your health dashboard"}
-          subtitle="Everything MedAssist AI knows about your health, in one calm view."
+          title={
+            profile.name
+              ? t(`Hello, ${profile.name}`, `नमस्ते, ${profile.name}`)
+              : t("Your health dashboard", "आपका स्वास्थ्य डैशबोर्ड")
+          }
+          subtitle={t(
+            "Everything MedAssist AI knows about your health, in one calm view.",
+            "MedAssist AI आपकी सेहत के बारे में जो जानता है, सब एक शांत जगह पर।",
+          )}
         />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -91,8 +100,8 @@ function Dashboard() {
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-primary">
                   <c.icon className="h-5 w-5" />
                 </span>
-                <p className="mt-3 font-semibold">{c.label}</p>
-                <p className="text-xs text-muted-foreground">{c.hint}</p>
+                <p className="mt-3 font-semibold">{t(c.label, c.labelHi)}</p>
+                <p className="text-xs text-muted-foreground">{t(c.hint, c.hintHi)}</p>
               </Link>
             </motion.div>
           ))}
@@ -101,13 +110,13 @@ function Dashboard() {
         <div className="mt-8 grid gap-5 lg:grid-cols-3">
           <section className="glass-card p-6">
             <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <Clock className="h-4 w-4 text-primary" /> Upcoming medicines
+              <Clock className="h-4 w-4 text-primary" /> {t("Upcoming medicines", "आगामी दवाएँ")}
             </h2>
             {upcoming.length === 0 ? (
               <p className="mt-4 text-sm text-muted-foreground">
-                No reminders yet.{" "}
+                {t("No reminders yet.", "अभी कोई रिमाइंडर नहीं है।")}{" "}
                 <Link to="/reminders" className="text-primary underline">
-                  Add one
+                  {t("Add one", "एक जोड़ें")}
                 </Link>
                 .
               </p>
@@ -132,13 +141,13 @@ function Dashboard() {
 
           <section className="glass-card p-6">
             <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <FileText className="h-4 w-4 text-primary" /> Recent reports
+              <FileText className="h-4 w-4 text-primary" /> {t("Recent reports", "हाल की रिपोर्ट")}
             </h2>
             {reports.length === 0 ? (
               <p className="mt-4 text-sm text-muted-foreground">
-                No reports analyzed yet.{" "}
+                {t("No reports analyzed yet.", "अभी कोई रिपोर्ट विश्लेषित नहीं हुई।")}{" "}
                 <Link to="/reports" className="text-primary underline">
-                  Upload one
+                  {t("Upload one", "एक अपलोड करें")}
                 </Link>
                 .
               </p>
@@ -158,24 +167,26 @@ function Dashboard() {
 
           <section className="glass-card p-6">
             <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <Droplets className="h-4 w-4 text-primary" /> Health summary
+              <Droplets className="h-4 w-4 text-primary" /> {t("Health summary", "स्वास्थ्य सारांश")}
             </h2>
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">BMI</dt>
+                <dt className="text-muted-foreground">{t("BMI", "बीएमआई")}</dt>
                 <dd className="font-semibold">{bmi ? bmi.toFixed(1) : "—"}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">Blood group</dt>
+                <dt className="text-muted-foreground">{t("Blood group", "ब्लड ग्रुप")}</dt>
                 <dd className="font-semibold">{profile.bloodGroup || "—"}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">Allergies</dt>
+                <dt className="text-muted-foreground">{t("Allergies", "एलर्जी")}</dt>
                 <dd className="max-w-[55%] truncate font-semibold">{profile.allergies || "—"}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">Water today</dt>
-                <dd className="font-semibold">{water} glasses</dd>
+                <dt className="text-muted-foreground">{t("Water today", "आज पानी")}</dt>
+                <dd className="font-semibold">
+                  {water} {t("glasses", "गिलास")}
+                </dd>
               </div>
             </dl>
           </section>
@@ -183,11 +194,14 @@ function Dashboard() {
 
         <section className="glass-card mt-5 p-6">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <History className="h-4 w-4 text-primary" /> Recent activity
+            <History className="h-4 w-4 text-primary" /> {t("Recent activity", "हाल की गतिविधि")}
           </h2>
           {activity.length === 0 ? (
             <p className="mt-4 text-sm text-muted-foreground">
-              Your AI conversations and health actions will appear here.
+              {t(
+                "Your AI conversations and health actions will appear here.",
+                "आपकी एआई बातचीत और स्वास्थ्य गतिविधियाँ यहाँ दिखेंगी।",
+              )}
             </p>
           ) : (
             <ul className="mt-4 divide-y divide-border/60">
