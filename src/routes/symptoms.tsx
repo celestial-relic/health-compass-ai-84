@@ -8,6 +8,7 @@ import { AppShell, PageHeader } from "@/components/AppShell";
 import { analyzeSymptoms, type SymptomResult } from "@/lib/ai.functions";
 import { STORE_KEYS, emptyProfile, pushActivity, useLocalStore, type HealthProfile } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/symptoms")({
   head: () => ({
@@ -29,18 +30,18 @@ export const Route = createFileRoute("/symptoms")({
 });
 
 const COMMON = [
-  "Fever",
-  "Cough",
-  "Headache",
-  "Sore throat",
-  "Vomiting",
-  "Fatigue",
-  "Chest pain",
-  "Breathing difficulty",
-  "Body pain",
-  "Stomach pain",
-  "Dizziness",
-  "Rash",
+  { en: "Fever", hi: "बुखार" },
+  { en: "Cough", hi: "खांसी" },
+  { en: "Headache", hi: "सिरदर्द" },
+  { en: "Sore throat", hi: "गले में खराश" },
+  { en: "Vomiting", hi: "उल्टी" },
+  { en: "Fatigue", hi: "थकान" },
+  { en: "Chest pain", hi: "सीने में दर्द" },
+  { en: "Breathing difficulty", hi: "सांस लेने में तकलीफ" },
+  { en: "Body pain", hi: "बदन दर्द" },
+  { en: "Stomach pain", hi: "पेट दर्द" },
+  { en: "Dizziness", hi: "चक्कर आना" },
+  { en: "Rash", hi: "त्वचा पर चकत्ते" },
 ];
 
 const RISK_STYLES: Record<SymptomResult["risk"], string> = {
@@ -50,6 +51,7 @@ const RISK_STYLES: Record<SymptomResult["risk"], string> = {
 };
 
 function SymptomsPage() {
+  const { t, lang } = useI18n();
   const analyze = useServerFn(analyzeSymptoms);
   const { value: profile } = useLocalStore<HealthProfile>(STORE_KEYS.profile, emptyProfile);
   const [selected, setSelected] = useState<string[]>([]);
@@ -64,7 +66,7 @@ function SymptomsPage() {
   async function run() {
     const all = [...selected, ...custom.split(",").map((s) => s.trim()).filter(Boolean)];
     if (all.length === 0) {
-      toast.error("Pick at least one symptom.");
+      toast.error(t("Pick at least one symptom.", "कम से कम एक लक्षण चुनें।"));
       return;
     }
     setLoading(true);
@@ -73,6 +75,7 @@ function SymptomsPage() {
       const res = await analyze({
         data: {
           engine: "gemini",
+          lang,
           symptoms: all.slice(0, 20),
           notes,
           age: profile.age,
@@ -82,11 +85,11 @@ function SymptomsPage() {
       setResult(res);
       pushActivity({
         type: "symptom",
-        title: `Symptom check — ${res.risk} risk`,
+        title: `${t("Symptom check", "लक्षण जांच")} — ${res.risk} ${t("risk", "जोखिम")}`,
         detail: all.join(", ").slice(0, 90),
       });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Analysis failed.");
+      toast.error(err instanceof Error ? err.message : t("Analysis failed.", "विश्लेषण विफल हुआ।"));
     } finally {
       setLoading(false);
     }
@@ -97,44 +100,47 @@ function SymptomsPage() {
       <div className="mx-auto max-w-5xl px-4 py-10">
         <PageHeader
           icon={Stethoscope}
-          title="Symptom Checker"
-          subtitle="Tell MedAssist AI what you're feeling. You'll get an urgency level, likely explanations and clear next steps."
+          title={t("Symptom Checker", "लक्षण जांचक")}
+          subtitle={t(
+            "Tell MedAssist AI what you're feeling. You'll get an urgency level, likely explanations and clear next steps.",
+            "MedAssist AI को बताएं कि आप कैसा महसूस कर रहे हैं। आपको एक तात्कालिकता स्तर, संभावित कारण और स्पष्ट अगले कदम मिलेंगे।",
+          )}
         />
 
         <div className="grid gap-5 lg:grid-cols-[1.1fr_1fr]">
           <section className="glass-card p-6">
-            <h2 className="text-sm font-semibold">Select your symptoms</h2>
+            <h2 className="text-sm font-semibold">{t("Select your symptoms", "अपने लक्षण चुनें")}</h2>
             <div className="mt-4 flex flex-wrap gap-2">
               {COMMON.map((s) => (
                 <button
-                  key={s}
-                  onClick={() => toggle(s)}
-                  aria-pressed={selected.includes(s)}
+                  key={s.en}
+                  onClick={() => toggle(t(s.en, s.hi))}
+                  aria-pressed={selected.includes(t(s.en, s.hi))}
                   className={cn(
                     "rounded-full border border-border px-3.5 py-1.5 text-sm transition-all",
-                    selected.includes(s)
+                    selected.includes(t(s.en, s.hi))
                       ? "bg-brand text-primary-foreground shadow-glow"
                       : "hover:bg-accent",
                   )}
                 >
-                  {s}
+                  {t(s.en, s.hi)}
                 </button>
               ))}
             </div>
 
             <label className="mt-6 block text-sm font-medium" htmlFor="custom">
-              Other symptoms (comma separated)
+              {t("Other symptoms (comma separated)", "अन्य लक्षण (कॉमा से अलग करें)")}
             </label>
             <input
               id="custom"
               value={custom}
               onChange={(e) => setCustom(e.target.value)}
-              placeholder="e.g. chills, loss of appetite"
+              placeholder={t("e.g. chills, loss of appetite", "जैसे ठंड लगना, भूख न लगना")}
               className="mt-2 h-11 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
 
             <label className="mt-4 block text-sm font-medium" htmlFor="notes">
-              How long, how severe, anything else?
+              {t("How long, how severe, anything else?", "कितने समय से, कितना गंभीर, और कुछ और?")}
             </label>
             <textarea
               id="notes"
@@ -150,7 +156,7 @@ function SymptomsPage() {
               className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-glow disabled:opacity-60"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Stethoscope className="h-4 w-4" />}
-              {loading ? "Analyzing…" : "Analyze symptoms"}
+              {loading ? t("Analyzing…", "विश्लेषण हो रहा है…") : t("Analyze symptoms", "लक्षणों का विश्लेषण करें")}
             </button>
           </section>
 
@@ -183,8 +189,8 @@ function SymptomsPage() {
                         <ShieldAlert className="h-7 w-7" />
                       </motion.span>
                       <div>
-                        <p className="text-xs font-semibold tracking-wide uppercase">Urgency</p>
-                        <p className="text-2xl font-bold">{result.risk} risk</p>
+                        <p className="text-xs font-semibold tracking-wide uppercase">{t("Urgency", "तात्कालिकता")}</p>
+                        <p className="text-2xl font-bold">{result.risk} {t("risk", "जोखिम")}</p>
                       </div>
                     </div>
                     <p className="mt-4 text-sm text-foreground">{result.summary}</p>
@@ -192,21 +198,26 @@ function SymptomsPage() {
 
                   {result.risk === "High" && (
                     <div className="animate-sos rounded-2xl border border-destructive/50 bg-destructive/10 p-5 text-sm">
-                      <p className="font-bold text-destructive">🚨 Seek emergency care now</p>
+                      <p className="font-bold text-destructive">{t("🚨 Seek emergency care now", "🚨 तुरंत आपातकालीन देखभाल लें")}</p>
                       <p className="mt-1 text-muted-foreground">
-                        Call 108 / 112 or go to the nearest emergency room immediately.
+                        {t(
+                          "Call 108 / 112 or go to the nearest emergency room immediately.",
+                          "तुरंत 108 / 112 पर कॉल करें या नज़दीकी आपातकालीन कक्ष में जाएं।",
+                        )}
                       </p>
                     </div>
                   )}
 
-                  <ResultList icon={HeartPulse} title="Possible explanations" items={result.possibleCauses} />
-                  <ResultList icon={Home} title="Safe home care" items={result.homeCare} />
-                  <ResultList icon={UserRound} title="See a doctor if" items={result.seeDoctor} />
-                  <ResultList icon={ShieldAlert} title="Emergency warning signs" items={result.emergencySigns} />
+                  <ResultList icon={HeartPulse} title={t("Possible explanations", "संभावित कारण")} items={result.possibleCauses} />
+                  <ResultList icon={Home} title={t("Safe home care", "सुरक्षित घरेलू देखभाल")} items={result.homeCare} />
+                  <ResultList icon={UserRound} title={t("See a doctor if", "डॉक्टर से मिलें अगर")} items={result.seeDoctor} />
+                  <ResultList icon={ShieldAlert} title={t("Emergency warning signs", "आपातकालीन चेतावनी संकेत")} items={result.emergencySigns} />
 
                   <p className="text-xs text-muted-foreground">
-                    ⚠️ This is general health information, not a medical diagnosis. Please consult a
-                    qualified doctor.
+                    {t(
+                      "⚠️ This is general health information, not a medical diagnosis. Please consult a qualified doctor.",
+                      "⚠️ यह सामान्य स्वास्थ्य जानकारी है, चिकित्सा निदान नहीं। कृपया किसी योग्य डॉक्टर से सलाह लें।",
+                    )}
                   </p>
                 </motion.div>
               )}
